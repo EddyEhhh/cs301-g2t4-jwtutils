@@ -29,6 +29,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        if (WebUtils.getCookie(request, "access_token") == null || WebUtils.getCookie(request, "id_token") == null){
+            filterChain.doFilter(request, response);
+            return;
+        }
         String token = WebUtils.getCookie(request, "access_token").getValue();
         String id_token = WebUtils.getCookie(request, "id_token").getValue();
         if (token != null && validateToken(token) && validateToken(id_token)) {
@@ -41,9 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 httpRequest.setAttribute("id", JwkUtil.getValueFromTokenPayload(id_token, "sub"));
                 httpRequest.setAttribute("username", JwkUtil.getValueFromTokenPayload(id_token, "cognito:username"));
                 httpRequest.setAttribute("email", JwkUtil.getValueFromTokenPayload(id_token, "email"));
-                httpRequest.setAttribute("email", JwkUtil.getValueFromTokenPayload(id_token, "custom:first_name"));
-                httpRequest.setAttribute("email", JwkUtil.getValueFromTokenPayload(id_token, "custom:last_name"));
-                httpRequest.setAttribute("email", JwkUtil.getValueFromTokenPayload(id_token, "custom:role"));
+                httpRequest.setAttribute("first_name", JwkUtil.getValueFromTokenPayload(id_token, "custom:first_name"));
+                httpRequest.setAttribute("last_name", JwkUtil.getValueFromTokenPayload(id_token, "custom:last_name"));
+                httpRequest.setAttribute("role", JwkUtil.getValueFromTokenPayload(id_token, "custom:role"));
             }
         }
 
