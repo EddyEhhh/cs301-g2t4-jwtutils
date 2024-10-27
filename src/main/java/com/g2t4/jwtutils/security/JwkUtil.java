@@ -16,16 +16,30 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 
 
+@Component
 public class JwkUtil {
 
-    @Value("${cognito.userpool.id}")
+
     private static String userPoolId;
+    private static JwkProvider provider;
 
-    private static String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
-    private static JwkProvider provider = new JwkProviderBuilder(JWKS_URL)
-            .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
-            .build();
+    @Value("${cognito.userpool.id}")
+    public void setUserPoolId(String name) {
+        userPoolId = name;
+        initializeProvider();
+    }
 
+    public static String getUserPoolId() {
+        return userPoolId;
+    }
+
+    private void initializeProvider() {
+        String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
+        provider = new JwkProviderBuilder(JWKS_URL)
+                .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
+                .build();
+    }
+    
     public static RSAPublicKey getPublicKey(String kid) throws Exception {
         Jwk jwk = provider.get(kid);
         return (RSAPublicKey) jwk.getPublicKey();
