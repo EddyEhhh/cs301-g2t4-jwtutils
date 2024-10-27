@@ -1,9 +1,7 @@
 package com.g2t4.jwtutils.security;
 
-import com.g2t4.jwtutils.security.JwtAuthenticationToken;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -11,20 +9,29 @@ import java.security.interfaces.RSAPublicKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 
 
+
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
+    private final JwkUtil jwkUtil;
+
+    @Autowired
+    public JwtAuthenticationFilter(JwkUtil jwkUtil) {
+        this.jwkUtil = jwkUtil;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -43,12 +50,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 JwtAuthenticationToken authentication = new JwtAuthenticationToken(claims);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                httpRequest.setAttribute("id", JwkUtil.getValueFromTokenPayload(id_token, "sub"));
-                httpRequest.setAttribute("username", JwkUtil.getValueFromTokenPayload(id_token, "cognito:username"));
-                httpRequest.setAttribute("email", JwkUtil.getValueFromTokenPayload(id_token, "email"));
-                httpRequest.setAttribute("first_name", JwkUtil.getValueFromTokenPayload(id_token, "custom:first_name"));
-                httpRequest.setAttribute("last_name", JwkUtil.getValueFromTokenPayload(id_token, "custom:last_name"));
-                httpRequest.setAttribute("role", JwkUtil.getValueFromTokenPayload(id_token, "custom:role"));
+                httpRequest.setAttribute("id", jwkUtil.getValueFromTokenPayload(id_token, "sub"));
+                httpRequest.setAttribute("username", jwkUtil.getValueFromTokenPayload(id_token, "cognito:username"));
+                httpRequest.setAttribute("email", jwkUtil.getValueFromTokenPayload(id_token, "email"));
+                httpRequest.setAttribute("first_name", jwkUtil.getValueFromTokenPayload(id_token, "custom:first_name"));
+                httpRequest.setAttribute("last_name", jwkUtil.getValueFromTokenPayload(id_token, "custom:last_name"));
+                httpRequest.setAttribute("role", jwkUtil.getValueFromTokenPayload(id_token, "custom:role"));
             }
         }
 
@@ -57,8 +64,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean validateToken(String token) {
         try {
-            String kid = JwkUtil.getKidFromTokenHeader(token);
-            RSAPublicKey publicKey = JwkUtil.getPublicKey(kid);
+            String kid = jwkUtil.getKidFromTokenHeader(token);
+            RSAPublicKey publicKey = jwkUtil.getPublicKey(kid);
             Jwts.parser()
                     .verifyWith(publicKey)
                     .build()
@@ -72,8 +79,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private Claims getClaimsFromToken(String token) {
         try {
-            String kid = JwkUtil.getKidFromTokenHeader(token);
-            RSAPublicKey publicKey = JwkUtil.getPublicKey(kid);
+            String kid = jwkUtil.getKidFromTokenHeader(token);
+            RSAPublicKey publicKey = jwkUtil.getPublicKey(kid);
             return Jwts.parser()
                     .verifyWith(publicKey)
                     .build()
