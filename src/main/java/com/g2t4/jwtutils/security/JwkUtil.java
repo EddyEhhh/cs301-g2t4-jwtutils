@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 @Component
 public class JwkUtil {
 
-
     private static String userPoolId;
     private static JwkProvider provider;
 
@@ -29,17 +28,17 @@ public class JwkUtil {
         initializeProvider();
     }
 
-    public static String getUserPoolId() {
-        return userPoolId;
+    private static void initializeProvider() {
+        if (userPoolId != null) {
+            String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
+            provider = new JwkProviderBuilder(JWKS_URL)
+                    .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
+                    .build();
+        } else {
+            throw new IllegalStateException("UserPoolId is not set. Cannot initialize JwkProvider.");
+        }
     }
 
-    private void initializeProvider() {
-        String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
-        provider = new JwkProviderBuilder(JWKS_URL)
-                .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
-                .build();
-    }
-    
     public static RSAPublicKey getPublicKey(String kid) throws Exception {
         Jwk jwk = provider.get(kid);
         return (RSAPublicKey) jwk.getPublicKey();
