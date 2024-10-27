@@ -8,7 +8,7 @@
 		<version>3.3.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>cs301.g2t4</groupId>
+	<groupId>com.g2t4</groupId>
 	<artifactId>jwtutils</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>jwtutils</name>
@@ -117,7 +117,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>cs301.g2t4.jwtutils.JwtutilsApplication</mainClass> <!-- Update to your main class -->
+					<mainClass>com.g2t4.jwtutils.JwtutilsApplication</mainClass> <!-- Update to your main class -->
 				</configuration>
 			</plugin>
 		</plugins>

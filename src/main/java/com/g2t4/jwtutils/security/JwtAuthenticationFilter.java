@@ -1,5 +1,6 @@
-package cs301.g2t4.jwtutils.security;
+package com.g2t4.jwtutils.security;
 
+import com.g2t4.jwtutils.security.JwtAuthenticationToken;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

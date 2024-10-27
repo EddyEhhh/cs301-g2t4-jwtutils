@@ -1,4 +1,4 @@
-package cs301.g2t4.jwtutils.security;
+package com.g2t4.jwtutils.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import io.jsonwebtoken.Claims;

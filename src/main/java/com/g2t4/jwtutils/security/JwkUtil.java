@@ -1,4 +1,4 @@
-package cs301.g2t4.jwtutils.security;
+package com.g2t4.jwtutils.security;
 
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
