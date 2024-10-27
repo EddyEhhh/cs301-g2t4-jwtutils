@@ -21,17 +21,16 @@ import io.jsonwebtoken.Jwts;
 
 
 
-@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwkUtil jwkUtil;
 
-    @Autowired
     public JwtAuthenticationFilter(JwkUtil jwkUtil) {
         this.jwkUtil = jwkUtil;
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
