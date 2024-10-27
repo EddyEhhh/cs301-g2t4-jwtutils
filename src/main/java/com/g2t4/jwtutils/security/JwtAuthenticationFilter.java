@@ -57,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean validateToken(String token) {
         try {
-//            logger.info(JwkUtil.getKidFromTokenHeader(token));
             String kid = JwkUtil.getKidFromTokenHeader(token);
             RSAPublicKey publicKey = JwkUtil.getPublicKey(kid);
             Jwts.parser()
@@ -67,7 +66,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         } catch (Exception e) {
             logger.info(e.toString());
-            logger.info("VALIDATING TOKEN FALSE");
             return false;
         }
     }

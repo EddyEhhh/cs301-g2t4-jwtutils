@@ -108,19 +108,17 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.3.5</version>
 				<executions>
 					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
+						<id>repackage</id>
+						<configuration>
+							<classifier>exec</classifier>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<mainClass>com.g2t4.jwtutils.JwtutilsApplication</mainClass> <!-- Update to your main class -->
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
 
 </project>
