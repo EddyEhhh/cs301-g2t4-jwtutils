@@ -19,14 +19,15 @@ import org.springframework.web.util.WebUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
-
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-    private final JwkUtil jwkUtil;
+    private JwkUtil jwkUtil;
 
-    public JwtAuthenticationFilter(JwkUtil jwkUtil) {
+    @Autowired
+    public void setJwkUtil(JwkUtil jwkUtil) {
         this.jwkUtil = jwkUtil;
     }
 
