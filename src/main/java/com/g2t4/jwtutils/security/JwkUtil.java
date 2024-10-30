@@ -21,16 +21,11 @@ public class JwkUtil {
     @Value("${cognito.userpool.id:not_found}")
     private String userPoolId;
 
-    private JwkProvider provider; // Remove the final modifier and JWKS_URL
+    private String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
 
-    // Constructor to initialize the provider
-    @PostConstruct
-    private void init() {
-        String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
-        this.provider = new JwkProviderBuilder(JWKS_URL)
+    private JwkProvider provider = new JwkProviderBuilder(JWKS_URL)
                 .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
                 .build();
-    }
 
     public RSAPublicKey getPublicKey(String kid) throws Exception {
         Jwk jwk = provider.get(kid);
