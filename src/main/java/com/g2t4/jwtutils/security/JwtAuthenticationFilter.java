@@ -33,8 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${cognito.userpool.id}")
     private String userPoolId;
 
-    private String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
-
 
 
     @Override
@@ -96,7 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
 
-    private JwkProvider provider = new JwkProviderBuilder(JWKS_URL)
+    private JwkProvider provider = new JwkProviderBuilder("https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId)
             .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
             .build();
 
