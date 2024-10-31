@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        System.out.print("USERPOOL: " + userPoolId);
         if (WebUtils.getCookie(request, "access_token") == null || WebUtils.getCookie(request, "id_token") == null){
             filterChain.doFilter(request, response);
             return;
