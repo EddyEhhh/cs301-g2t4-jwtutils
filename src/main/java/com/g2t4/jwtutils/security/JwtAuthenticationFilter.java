@@ -3,6 +3,7 @@ package com.g2t4.jwtutils.security;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.JwkProviderBuilder;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,6 +34,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${cognito.userpool.id}")
     private String userPoolId;
 
+    JwkProvider provider = new JwkProviderBuilder("https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId)
+            .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
+            .build();
+
+    @PostConstruct
+    public void init() {
+        provider = createJwkProvider();
+    }
+
+    private JwkProvider createJwkProvider() {
+        return new JwkProviderBuilder("https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId)
+                .cached(10, 24, TimeUnit.HOURS)
+                .build();
+    }
 
 
     @Override
@@ -95,9 +110,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
 
-    JwkProvider provider = new JwkProviderBuilder("https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId)
-            .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
-            .build();
+
 
     public RSAPublicKey getPublicKey(String kid) throws Exception {
         Jwk jwk = provider.get(kid);
