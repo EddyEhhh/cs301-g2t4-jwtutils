@@ -19,20 +19,20 @@ import org.springframework.stereotype.Service;
 public class JwkUtil {
 
     @Value("${cognito.userpool.id:not_found}")
-    private String userPoolId;
+    private static String userPoolId;
 
-    private String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
+    private static String JWKS_URL = "https://cognito-idp.ap-southeast-1.amazonaws.com/" + userPoolId;
 
-    private JwkProvider provider = new JwkProviderBuilder(JWKS_URL)
+    private static JwkProvider provider = new JwkProviderBuilder(JWKS_URL)
                 .cached(10, 24, TimeUnit.HOURS) // Cache up to 10 keys for 24 hours
                 .build();
 
-    public RSAPublicKey getPublicKey(String kid) throws Exception {
+    public static RSAPublicKey getPublicKey(String kid) throws Exception {
         Jwk jwk = provider.get(kid);
         return (RSAPublicKey) jwk.getPublicKey();
     }
 
-    public String getKidFromTokenHeader(String token) {
+    public static String getKidFromTokenHeader(String token) {
         String[] parts = token.split("\\.");
         JSONObject header = new JSONObject(decode(parts[0]));
         JSONObject payload = new JSONObject(decode(parts[1]));
@@ -44,7 +44,7 @@ public class JwkUtil {
         return new String(Base64.getUrlDecoder().decode(encodedString));
     }
 
-    public String getValueFromTokenPayload(String token, String key) {
+    public static String getValueFromTokenPayload(String token, String key) {
         String[] parts = token.split("\\.");
         JSONObject payload = new JSONObject(decode(parts[1]));
         return payload.getString(key);

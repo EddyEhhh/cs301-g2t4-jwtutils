@@ -24,13 +24,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-    private JwkUtil jwkUtil;
-
-    @Autowired
-    public void setJwkUtil(JwkUtil jwkUtil) {
-        this.jwkUtil = jwkUtil;
-    }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -49,12 +42,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 JwtAuthenticationToken authentication = new JwtAuthenticationToken(claims);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                httpRequest.setAttribute("id", jwkUtil.getValueFromTokenPayload(id_token, "sub"));
-                httpRequest.setAttribute("username", jwkUtil.getValueFromTokenPayload(id_token, "cognito:username"));
-                httpRequest.setAttribute("email", jwkUtil.getValueFromTokenPayload(id_token, "email"));
-                httpRequest.setAttribute("first_name", jwkUtil.getValueFromTokenPayload(id_token, "custom:first_name"));
-                httpRequest.setAttribute("last_name", jwkUtil.getValueFromTokenPayload(id_token, "custom:last_name"));
-                httpRequest.setAttribute("role", jwkUtil.getValueFromTokenPayload(id_token, "custom:role"));
+                httpRequest.setAttribute("id", JwkUtil.getValueFromTokenPayload(id_token, "sub"));
+                httpRequest.setAttribute("username", JwkUtil.getValueFromTokenPayload(id_token, "cognito:username"));
+                httpRequest.setAttribute("email", JwkUtil.getValueFromTokenPayload(id_token, "email"));
+                httpRequest.setAttribute("first_name", JwkUtil.getValueFromTokenPayload(id_token, "custom:first_name"));
+                httpRequest.setAttribute("last_name", JwkUtil.getValueFromTokenPayload(id_token, "custom:last_name"));
+                httpRequest.setAttribute("role", JwkUtil.getValueFromTokenPayload(id_token, "custom:role"));
             }
         }
 
@@ -63,8 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean validateToken(String token) {
         try {
-            String kid = jwkUtil.getKidFromTokenHeader(token);
-            RSAPublicKey publicKey = jwkUtil.getPublicKey(kid);
+            String kid = JwkUtil.getKidFromTokenHeader(token);
+            RSAPublicKey publicKey = JwkUtil.getPublicKey(kid);
             Jwts.parser()
                     .verifyWith(publicKey)
                     .build()
@@ -78,8 +71,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private Claims getClaimsFromToken(String token) {
         try {
-            String kid = jwkUtil.getKidFromTokenHeader(token);
-            RSAPublicKey publicKey = jwkUtil.getPublicKey(kid);
+            String kid = JwkUtil.getKidFromTokenHeader(token);
+            RSAPublicKey publicKey = JwkUtil.getPublicKey(kid);
             return Jwts.parser()
                     .verifyWith(publicKey)
                     .build()
