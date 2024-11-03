@@ -2,13 +2,16 @@ package com.g2t4.jwtutils.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import io.jsonwebtoken.Claims;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     private final Claims claims;
 
-    public JwtAuthenticationToken(Claims claims) {
-        super(null);
+    public JwtAuthenticationToken(Claims claims, Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
         this.claims = claims;
         setAuthenticated(true);
     }

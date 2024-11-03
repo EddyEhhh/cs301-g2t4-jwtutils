@@ -70,12 +70,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && validateToken(token) && validateToken(id_token)) {
             Claims claims = getClaimsFromToken(token);
             String role = getValueFromTokenPayload(id_token, "custom:role");
-            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
-
             if (claims != null) {
                 // Set authentication in the context
-//                JwtAuthenticationToken authentication = new JwtAuthenticationToken(claims);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(claims, null, authorities);
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+
+                JwtAuthenticationToken authentication = new JwtAuthenticationToken(claims, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 httpRequest.setAttribute("id", getValueFromTokenPayload(id_token, "sub"));
