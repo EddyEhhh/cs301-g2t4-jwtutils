@@ -11,12 +11,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -63,6 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String id_token = WebUtils.getCookie(request, "id_token").getValue();
         if (token != null && validateToken(token) && validateToken(id_token)) {
             Claims claims = getClaimsFromToken(token);
+            String role = getValueFromTokenPayload(id_token, "custom:role");
             if (claims != null) {
                 // Set authentication in the context
                 JwtAuthenticationToken authentication = new JwtAuthenticationToken(claims);
@@ -73,7 +77,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 httpRequest.setAttribute("email", getValueFromTokenPayload(id_token, "email"));
                 httpRequest.setAttribute("first_name", getValueFromTokenPayload(id_token, "custom:first_name"));
                 httpRequest.setAttribute("last_name", getValueFromTokenPayload(id_token, "custom:last_name"));
-                httpRequest.setAttribute("role", getValueFromTokenPayload(id_token, "custom:role"));
+                httpRequest.setAttribute("role", role);
+            }
+
+            if (role != null) {
+                // Set the authentication with the role from the cookie
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        "user", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
