@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -64,12 +66,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String token = WebUtils.getCookie(request, "access_token").getValue();
         String id_token = WebUtils.getCookie(request, "id_token").getValue();
+
         if (token != null && validateToken(token) && validateToken(id_token)) {
             Claims claims = getClaimsFromToken(token);
             String role = getValueFromTokenPayload(id_token, "custom:role");
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+
             if (claims != null) {
                 // Set authentication in the context
-                JwtAuthenticationToken authentication = new JwtAuthenticationToken(claims);
+//                JwtAuthenticationToken authentication = new JwtAuthenticationToken(claims);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(claims, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 httpRequest.setAttribute("id", getValueFromTokenPayload(id_token, "sub"));
@@ -80,13 +86,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 httpRequest.setAttribute("role", role);
             }
 
-            if (role != null) {
-                // Set the authentication with the role from the cookie
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        "user", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                );
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
         }
 
         filterChain.doFilter(request, response);
